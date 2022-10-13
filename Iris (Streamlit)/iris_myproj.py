@@ -1,40 +1,105 @@
-import streamlit as st
+# Import standard libraries
+import numpy as np
 import pandas as pd
+import streamlit as st
+import matplotlib.pyplot as plt
+
+# Import scikit-learn libraries
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
-import numpy as np
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import tree  
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-
-st.title('Iris Classification using Decision Trees')
 
 
-# Viewing the dataframe
-st.markdown("#### View of the dataset")
-df = pd.read_csv('Iris.csv')
-st.dataframe(df)
+# Creating the top contents
+webpage_title = 'Iris Classification using Decision Trees'
+
+webpage_definition = (""" 
+                      
+    The Iris dataset was used in R.A. Fisher's classic 1936 paper, 
+    the Use of Multiple Measurements in Taxonomic Problems, 
+    and can also be found on the UCI Machine Learning Repository.
+    
+    It includes three iris species with 50 samples each as well as some 
+    properties about each flower. One flower species is linearly separable 
+    from the other two, but the other two are not linearly separable from 
+    each other.
+    
+    """)
+       
+def top_contents(title, definition):
+    
+    st.title(title)
+    st.write(definition)
+    st.markdown("---")
+    
+    return
+
+introduction = top_contents(webpage_title, webpage_definition)
 
 
+
+filename = 'Iris.csv'
+
+def raw_dataset(file_name):
+    st.header('View of the dataset')   
+    df = pd.read_csv('Iris.csv')
+    st.dataframe(df)
+    
+    return df
+    
+dict_iris = {
+    
+    'Id': 'Numeric sequence',
+    'SepalLengthCm': 'Length of the sepal (in cm)',
+    'SepalWidthCm': 'Width of the sepal (in cm)',
+    'PetalLengthCm': 'Length of the petal (in cm)',
+    'PetalWidthCm': 'Width of the petal (in cm)',
+    'Species': 'Species name'
+
+    }
+
+feats = st.selectbox('Select a feature:', list(dict_iris.keys()))
+
+rr1, rr2 = st.columns([1,8])
+
+with rr1:
+    st.markdown('**Meaning:**')
+
+with rr2:
+    st.write(dict_iris.get(feats))
+
+
+dataset = raw_dataset(filename)
+    
 # View the null values for each column
-null_values, quick_summaries = st.columns((3, 3))
+null_values, quick_summaries = st.columns((3, 5))
 
 with null_values:
-    st.markdown('#### View the null values for each column')
-    nulls = df.isna().sum()
+    st.markdown('#### Columnar Null Values')
+    nulls = dataset.isna().sum()
     st.dataframe(nulls)
-  
-    
+
 with quick_summaries:
     st.markdown('### Quick Summaries')
-    rows, columns = df.shape
-    classes = df['Species'].unique()
+    rows, columns = dataset.shape
+    classes = dataset['Species'].unique()
     st.write("Number of columns:", columns)
     st.write("Number of Rows", rows)
     st.write("Number of classes:", len(classes))
     st.write(classes)
+
+#%% # Viewing the dataframe
+# st.markdown("#### View of the dataset")
+# df = pd.read_csv('Iris.csv')
+# st.dataframe(df)
+
+
+
+    
+
 
 st.markdown('# Now for the scikit part....')
 
@@ -43,13 +108,13 @@ target, features = st.columns((0.5, 3))
 
 
 le = LabelEncoder()
-df['labels'] = le.fit_transform(df["Species"])
-X = np.array(df[['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']])                   # Input
-Y = np.array(df[["labels"]])   
+dataset['labels'] = le.fit_transform(dataset["Species"])
+X = np.array(dataset[['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']])                   # Input
+Y = np.array(dataset[["labels"]])   
 
 
 with target:
-    st.dataframe(df['labels'])
+    st.dataframe(dataset['labels'])
 
 with features:
     st.dataframe(X)
@@ -64,7 +129,7 @@ def dtc_parameter(selectbox):
     params = dict()
     if selectbox == 'Gini':
         splitter = st.select_slider('Splitter', ['Best', 'Random'])
-        max_depth = st.slider('Depth of tree', 0, 100, 0)
+        max_depth = st.slider('Depth of tree', 0, 100, 1)
         min_samples_split = st.slider('Min # of samples', 0, 20, 2)
         min_samples_leaf = st.slider('Min # of samples', 0, 20, 1)
         
@@ -74,7 +139,7 @@ def dtc_parameter(selectbox):
         params['Leaf Samples'] = min_samples_leaf
     else:
         splitter = st.select_slider('Splitter for Entropy', ['best', 'random'])
-        max_depth = st.slider('Depth of tree', 0, 100, 0)
+        max_depth = st.slider('Depth of tree', 0, 100, 1)
         min_samples_split = st.slider('Min # of samples', 0, 20, 2)
         min_samples_leaf = st.slider('Min # of samples', 0, 20, 1)
         
@@ -135,37 +200,3 @@ dtc_final = dtc_actions(result, paramsdtc, classifier_type,
 
 
 
-
-
-# def get_classifier(clf_name, params):
-#     clf = None
-#     if clf_name == 'SVM':
-#         clf = SVC(C=params['C'])
-#     elif clf_name == 'KNN':
-#         clf = KNeighborsClassifier(n_neighbors=params['K'])
-#     else:
-#         clf = RandomForestClassifier(n_estimators=params['n_estimators'], 
-#             max_depth=params['max_depth'], random_state=1234)
-#     return clf
-
-
-
-
-# classifier_name = st.sidebar.selectbox('Select classifier', ('Decision Trees'))
-
-# def add_parameter_ui(clf_name):
-#     params = dict()
-#     if clf_name == 'SVM':
-#         C = st.sidebar.slider('C', 0.01, 10.0)
-#         params['C'] = C
-#     elif clf_name == 'KNN':
-#         K = st.sidebar.slider('K', 1, 15)
-#         params['K'] = K
-#     else:
-#         max_depth = st.sidebar.slider('max_depth', 2, 15)
-#         params['max_depth'] = max_depth
-#         n_estimators = st.sidebar.slider('n_estimators', 1, 100)
-#         params['n_estimators'] = n_estimators
-#     return params
-
-# params = add_parameter_ui(classifier_name)
