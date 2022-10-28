@@ -26,8 +26,8 @@ webpage_definition = ("""
     properties about each flower. One flower species is linearly separable 
     from the other two, but the other two are not linearly separable from 
     each other.
-    
-    """)
+   
+     """)
        
 def top_contents(title, definition):
     
@@ -46,8 +46,8 @@ filename = 'Iris.csv'
 def raw_dataset(file_name):
     st.header('View of the dataset')   
     df = pd.read_csv('Iris.csv')
-    st.dataframe(df)
-    
+    st.dataframe(df
+)    
     return df
     
 dict_iris = {
@@ -177,12 +177,12 @@ def dtc_actions(selectbox, params, classifier_type, X_train, y_train, X_test):
         return st.dataframe(dtc_pred)
         
     else:
-        clf = DecisionTreeClassifier(criterion = classifier_type,
-                                     splitter = params['Split Type'],
-                                     max_depth = params['Max Depth'],
-                                     min_samples_split = params['Split Samples'],
-                                     min_samples_leaf = params['Leaf Samples'],
-                                     )
+        clf = DecisionTreeClassifier(
+            criterion = classifier_type,
+            splitter = params['Split Type'],
+            max_depth = params['Max Depth'],
+            min_samples_split = params['Split Samples'],
+            min_samples_leaf = params['Leaf Samples'])
       
         clf.fit(X_train, y_train)
         
