@@ -45,11 +45,14 @@ with rght_sb:
 
 sp500 = yf.Ticker("^GSPC")
 sp500 = sp500.history(
-    start=start_year, 
-    end='2022-01-01', 
+    start = f'{start_year}-01-01', 
+    end = '2022-01-01', 
     interval=interval_dict.get(interval))
 
 st.line_chart(sp500['Close'])
+
+st.markdown('---')
+
 
 
 # market = yf.Ticker(markets_dict.get(index))
